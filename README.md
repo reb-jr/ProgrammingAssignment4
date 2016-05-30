@@ -25,7 +25,7 @@ Description of the originial data can be found in "data/README.txt"
      b. tidy_data_averaged.txt
 
 
-transformation steps:
+transformation steps performed by run_analysis.R:
 
 1. row bind data/test/subject_test.txt and data/train/subject_train.txt into a subject data frame
 2. row bind data/test/y_test.txt and data/train/y_train.txt into an activitiy data frame
@@ -49,4 +49,13 @@ The data set is processed as specified in the assignment instructions: using the
 ###CodeBook.md
 The code book describing the data set in the tidy_data_averaged.txt file
 
+#Steps for running the analysis
+1. clone this GitHub repo to your local
+2. open R
+3. change your working to the clone location
+4. ensure that the dplyr library is loaded
+5. load "run_analysis.R" to create the run_analysis() function
+6. execute run_analysis() function
+     a. it will return the averaged data to your R session, and
+     b. write contents of that to a file named "tidy_data_averaged.txt" in your current working directory
 
