@@ -19,10 +19,21 @@ The only modifications to the data are
 Description of the originial data can be found in "data/README.txt"
 
 ###run_analysis.R
-1. loads and tidys data from the source files in the "data" directory
+1. loads and tidys data from the source files in the "data/" directory
 2. generates two files:
      a. tidy_data.csv 
      b. tidy_data_averaged.csv
+
+
+transformation steps:
+
+1. row bind data/test/subject_test.txt and data/train/subject_train.txt into a subject data frame
+2. row bind data/test/y_test.txt and data/train/y_train.txt into an activitiy data frame
+3. row bind data/test/X_test.txt and data/train/X_train.txt into a measurements data frame <i>including only desired columns</i>
+4. replace column names for each of the above data frames with meaningful/readable names
+5. replace Activity IDs with descriptive names for the data frame produced by step 2
+6. column bind the 3 data frames produced by steps 1, 2, and 3 to produce the intermediary data fram
+7. group the result of previous step by SubjectId and Activity, then calculate the mean for all of the variables
 
 ###tidy_data.csv
 The data collected from the source data and combined into a single data set. This data set:

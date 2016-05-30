@@ -66,11 +66,11 @@ run_analysis <- function(){
      print("loading data...")
      full_data <- load_data()
 
-     write.csv(full_data,"tidy_data.csv")
+     write.table(full_data,"tidy_data.csv", row.names = FALSE)
 
      #Requirement 5
      averaged <- group_by(full_data,SubjectId,Activity) %>% summarise_each(funs(mean))
-     write.csv(averaged,"tidy_data_averaged.csv")
+     write.table(averaged,"tidy_data_averaged.csv", row.names = FALSE)
      
      averaged
 }
