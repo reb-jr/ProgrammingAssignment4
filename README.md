@@ -56,6 +56,7 @@ The code book describing the data set in the tidy_data_averaged.txt file
 4. ensure that the dplyr library is loaded
 5. load "run_analysis.R" to create the run_analysis() function
 6. execute run_analysis() function
+
      a. it will return the averaged data to your R session, and
      b. write contents of that to a file named "tidy_data_averaged.txt" in your current working directory
 
