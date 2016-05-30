@@ -71,4 +71,6 @@ run_analysis <- function(){
      #Requirement 5
      averaged <- group_by(full_data,SubjectId,Activity) %>% summarise_each(funs(mean))
      write.csv(averaged,"tidy_data_averaged.csv")
+     
+     averaged
 }
