@@ -9,14 +9,30 @@
 #
 
 run_analysis <- function(){
-     load_tidy_data <- function(){
-          # maps to values in activity column "y_*.txt"
-          #        used to fulfill Requirement 3
-          activity_labels <- read.table("data/activity_labels.txt")
+     download_the_data <- function(){
+          #default to using the original source data directory name
+          data_source_dir <- "UCI HAR Dataset";
           
-          # maps to variable names of "X_*.txt"
-          #        used to fulfull Requirement 4
-          variable_labels <- read.table("data/features.txt", col.names = c("Index","Name"))
+          if (file.exists("data"))  #the data was loaded from the repo
+               data_source_dir <- "data"
+          else if (!file.exists(data_source_dir)) { #data has not been loaded, ever
+               print("downloading source data...")
+               download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip","source_data.zip")
+               
+               print("extracting source data...")
+               unzip("source_data.zip")
+          }
+          data_source_dir
+     }
+     
+     load_tidy_data <- function(data_source_dir){
+          print(paste0("data will be loaded from '",getwd(),"/",data_source_dir,"/' ..."))
+          
+          # maps to values in activity column "y_*.txt" (used to fulfill Requirement 3)
+          activity_labels <- read.table(paste0(data_source_dir,"/activity_labels.txt"))
+          
+          # maps to variable names of "X_*.txt" (used to fulfull Requirement 4)
+          variable_labels <- read.table(paste0(data_source_dir,"/features.txt"), col.names = c("Index","Name"))
           
           # get the desired columns 
           #        (includes only the measurements in Requirement 2 - also used to fulfull Requirement 4)
@@ -30,50 +46,47 @@ run_analysis <- function(){
                                          gsub("\\(","",gsub(")","",desired_variables$Name))
                                     )
 
-          # load the subject data 
-          #        (merge of test and training - Requirement 1)
-          subjects   <- rbind(read.table("data/test/subject_test.txt"),
-                              read.table("data/train/subject_train.txt"))
+          # load the subject data (merge of test and training - Requirement 1)
+          subjects   <- rbind(read.table(paste0(data_source_dir,"/test/subject_test.txt")),
+                              read.table(paste0(data_source_dir,"/train/subject_train.txt")))
 
-          # load the activity data 
-          #        (merge of test and training - Requirement 1)
-          activities <- rbind(read.table("data/test/y_test.txt"),      
-                              read.table("data/train/y_train.txt"))
+          # load the activity data  (merge of test and training - Requirement 1)
+          activities <- rbind(read.table(paste0(data_source_dir,"/test/y_test.txt")),      
+                              read.table(paste0(data_source_dir,"/train/y_train.txt")))
 
-          # load the measurements 
-          #        (merge of test and training - Requirement 1)
-          #        (and only the mean and std variables/columns - Requirement 2)
+          # load the measurements  (merge of the mean and std variables/columns from test and training - Requirements 1 & 2)
           measurements <- rbind(
-               read.table("data/test/X_test.txt")[,desired_variables$Index],
-               read.table("data/train/X_train.txt")[,desired_variables$Index]
+               read.table(paste0(data_source_dir,"/test/X_test.txt"))[,desired_variables$Index],
+               read.table(paste0(data_source_dir,"/train/X_train.txt"))[,desired_variables$Index]
           )
           
-          # label the data set with descriptive variable names  
-          #        (Requirement 4)
+          # label the data set with descriptive variable names (Requirement 4)
           names(subjects) <- c("SubjectId")
           names(activities) <- c("Activity")
           names(measurements) <- desired_variables$Name
           
-          # convert the subject id into a factor
+          # convert the subject id into a factor (not a requirement, but it does express more accurately the semantics of the data)
           subjects <- mutate(subjects, SubjectId=as.factor(SubjectId))
           
-          # replace activity ids with descriptive names  
-          #        (Requirement 3)
+          # replace activity ids with descriptive names  (Requirement 3)
           activities <- mutate(activities, Activity=activity_labels[as.integer(Activity),2])
           
-          # merge data together  
-          #        (Requirement 1)
+          # merge data together  (Requirement 1)
           cbind(cbind(subjects,activities),measurements)
      }
+     print("checking for data...")
+     data_source_dir <- download_the_data()
      
      print("loading data...")
-     full_data <- load_tidy_data()
+     full_data <- load_tidy_data(data_source_dir)
 
      write.table(full_data,"tidy_data.txt", row.names = FALSE)
 
-     #Requirement 5
+     # summarize data (Requirement 5)
+     print("summarizing data...")
      averaged <- full_data %>% group_by(SubjectId,Activity) %>% summarise_each(funs(mean))
      write.table(averaged,"tidy_data_averaged.txt", row.names = FALSE)
      
+     print("done")
      averaged
 }
