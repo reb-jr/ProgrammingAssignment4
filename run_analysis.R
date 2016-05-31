@@ -9,22 +9,22 @@
 #
 
 run_analysis <- function(){
-     load_data <- function(){
-          # maps to "y_*.txt"
+     load_tidy_data <- function(){
+          # maps to values in activity column "y_*.txt"
           #        used to fulfill Requirement 3
           activity_labels <- read.table("data/activity_labels.txt")
           
-          # maps to columns of "X_*.txt"
+          # maps to variable names of "X_*.txt"
           #        used to fulfull Requirement 4
-          variable_labels <- read.table("data/features.txt")
+          variable_labels <- read.table("data/features.txt", col.names = c("Index","Name"))
           
           # get the desired columns 
           #        (includes only the measurements in Requirement 2 - also used to fulfull Requirement 4)
-          indices_of_desired_variables <- grep("*mean\\()*|*std\\()*",variable_labels$V2)
+          indices_of_desired_variables <- grep("*mean\\()*|*std\\()*",variable_labels$Name)
           desired_variables <- variable_labels[indices_of_desired_variables,]
-          names(desired_variables) <- c("Index","Name")
-          
-          # remove non-alphanumeric characters from the variable names  
+
+          # Tidy the variable names by removing parentheses and replacing 
+          # other non-alphanumeric characters with underscores "_"
           #        (Tidy variable names - used to fulfull Requirement 4)
           desired_variables$Name <- gsub("[^[:alnum:]]","_",
                                          gsub("\\(","",gsub(")","",desired_variables$Name))
@@ -54,6 +54,9 @@ run_analysis <- function(){
           names(activities) <- c("Activity")
           names(measurements) <- desired_variables$Name
           
+          # convert the subject id into a factor
+          subjects <- mutate(subjects, SubjectId=as.factor(SubjectId))
+          
           # replace activity ids with descriptive names  
           #        (Requirement 3)
           activities <- mutate(activities, Activity=activity_labels[as.integer(Activity),2])
@@ -64,12 +67,12 @@ run_analysis <- function(){
      }
      
      print("loading data...")
-     full_data <- load_data()
+     full_data <- load_tidy_data()
 
      write.table(full_data,"tidy_data.txt", row.names = FALSE)
 
      #Requirement 5
-     averaged <- group_by(full_data,SubjectId,Activity) %>% summarise_each(funs(mean))
+     averaged <- full_data %>% group_by(SubjectId,Activity) %>% summarise_each(funs(mean))
      write.table(averaged,"tidy_data_averaged.txt", row.names = FALSE)
      
      averaged
